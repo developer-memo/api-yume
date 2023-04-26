@@ -18,7 +18,7 @@ Corre `npm run start` para iniciar el server de express  conecta con la BD.
 
 Solicita los datos de conexión al Project manager, lider técnico o a la persona encargada:
 
-`export default class Enviroments {
+```export default class Enviroments {
 
   public JWT_SECRET:string = 'Aca es la JWT Secret';
 
@@ -46,7 +46,7 @@ Solicita los datos de conexión al Project manager, lider técnico o a la person
     }
   }
 }
-`
+```
 
 
 
