@@ -59,36 +59,35 @@ export default class  Pagos {
 
   //Método para consultar los pagos por id crédito
   public static getAllPagos = (req: Request, res: Response) =>{
-
     try {
-
       const query = `
-                    SELECT T0.nombre_us, T0.telefono_us, T0.email_us, T2.monto_cred, T2.plazo_cred, T2.estado_cred, T3.* 
-                    FROM usuarios AS T0 INNER JOIN pagos AS T3 ON T0.id_us = T3.id_us
-                    INNER JOIN creditos AS T2 ON T3.id_us = T2.id_us `;
+                  SELECT T0.*, T1.monto_cred, T1.plazo_cred, T1.estado_cred, T2.nombre_us, T2.telefono_us, T2.email_us
+                  FROM pagos AS T0 INNER JOIN creditos AS T1 
+                  ON T0.id_cred = T1.id_cred
+                  INNER JOIN usuarios AS T2 ON T0.id_us = T2.id_us
+                  WHERE T0.id_prestador = ${req.params.idUser}
+                  ORDER BY T0.fecha_pag DESC `;
 
-      MySQL.ejecutarQuery( query, (err:any, pagos: Object[]) =>{
-        if ( err ) {
+      MySQL.ejecutarQuery(query, (err: any, pagos: Object[]) => {
+        if (err) {
           return res.status(400).send({
             ok: false,
-            msg: 'No es posible obtener los pagos. Inténtelo más tarde.',
-            error: err
+            msg: "No es posible obtener los pagos. Inténtelo más tarde.",
+            error: err,
           });
-
         } else {
           return res.status(200).send({
             ok: true,
-            pagos
-          })
+            pagos,
+          });
         }
-      })
-      
+      });
     } catch (error) {
       return res.status(500).send({
         ok: false,
-        msg: 'Error inesperado en consulta... Revisar logs',
-        error
-      }); 
+        msg: "Error inesperado en consulta... Revisar logs",
+        error,
+      });
     }
 
   }

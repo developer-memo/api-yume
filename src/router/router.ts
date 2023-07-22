@@ -377,36 +377,10 @@ router.get("/api/allProyectos", (req: Request, res: Response) => {
  *Método GET que obtiene todos los créditos
  */
 router.get(
-  "/api/allCreditos",
+  "/api/allCreditos/:IdUser",
   middleware.validarJWT,
   (req: Request, res: Response) => {
-    //Creditos.getAllCreditos(req, res);
-    try {
-      const query = ` SELECT T0.id_us, T0.nombre_us, T0.telefono_us, T1.*
-                    FROM usuarios AS T0 INNER JOIN creditos AS T1 ON T0.id_us = T1.id_us 
-                    ORDER by T1.fecha_cred DESC `;
-
-      MySQL.ejecutarQuery(query, (err: any, creditos: Object[]) => {
-        if (err) {
-          return res.status(400).send({
-            ok: false,
-            msg: "No es posible obtener los créditos. Inténtelo más tarde.",
-            error: err,
-          });
-        } else {
-          return res.status(200).send({
-            ok: true,
-            creditos,
-          });
-        }
-      });
-    } catch (error) {
-      return res.status(500).send({
-        ok: false,
-        msg: "Error inesperado en obtener... Revisar logs",
-        error,
-      });
-    }
+    Creditos.getAllCreditos(req, res);
   }
 );
 
@@ -453,40 +427,10 @@ router.get(
  *Método GET que obtiene todos los pagos
  */
 router.get(
-  "/api/pagos",
+  "/api/pagos/:idUser",
   middleware.validarJWT,
   (req: Request, res: Response) => {
-    //Pagos.getAllPagos(req, res);
-
-    try {
-      const query = `
-                  SELECT T0.*, T1.monto_cred, T1.plazo_cred, T1.estado_cred, T2.nombre_us, T2.telefono_us, T2.email_us
-                  FROM pagos AS T0 INNER JOIN creditos AS T1 
-                  ON T0.id_cred = T1.id_cred
-                  INNER JOIN usuarios AS T2 ON T0.id_us = T2.id_us
-                  ORDER BY T0.fecha_pag DESC `;
-
-      MySQL.ejecutarQuery(query, (err: any, pagos: Object[]) => {
-        if (err) {
-          return res.status(400).send({
-            ok: false,
-            msg: "No es posible obtener los pagos. Inténtelo más tarde.",
-            error: err,
-          });
-        } else {
-          return res.status(200).send({
-            ok: true,
-            pagos,
-          });
-        }
-      });
-    } catch (error) {
-      return res.status(500).send({
-        ok: false,
-        msg: "Error inesperado en consulta... Revisar logs",
-        error,
-      });
-    }
+    Pagos.getAllPagos(req, res);
   }
 );
 

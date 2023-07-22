@@ -50,33 +50,32 @@ export default class Creditos {
 
   //Método para obtener todos los créditos
   public static getAllCreditos = (req: Request, res: Response) =>{
-
     try {
+      const query = ` 
+                    SELECT T0.id_us, T0.nombre_us, T0.telefono_us, T1.*
+                    FROM usuarios AS T0 INNER JOIN creditos AS T1 ON T0.id_us = T1.id_us 
+                    WHERE T1.id_prestador = ${req.params.IdUser}
+                    ORDER by T1.fecha_cred DESC `;
 
-      const query = ` SELECT T0.id_us, T0.nombre_us, T0.telefono_us, T1.*
-                  FROM usuarios AS T0 INNER JOIN creditos AS T1 ON T0.id_us = T1.id_us `;
-
-      MySQL.ejecutarQuery( query, (err:any, creditos: Object[]) =>{
-        if ( err ) {
+      MySQL.ejecutarQuery(query, (err: any, creditos: Object[]) => {
+        if (err) {
           return res.status(400).send({
             ok: false,
-            msg: 'No es posible obtener los créditos. Inténtelo más tarde.',
-            error: err
+            msg: "No es posible obtener los créditos. Inténtelo más tarde.",
+            error: err,
           });
-
         } else {
           return res.status(200).send({
             ok: true,
-            creditos
-          })
+            creditos,
+          });
         }
-      })
-      
+      });
     } catch (error) {
       return res.status(500).send({
         ok: false,
-        msg: 'Error inesperado en obtener... Revisar logs',
-        error
+        msg: "Error inesperado en obtener... Revisar logs",
+        error,
       });
     }
 
