@@ -133,7 +133,7 @@ export default class Finanzas {
     try {
       const escapeIdUs = MySQL.instance.cnn.escape(req.params.idUs);
       const query = `
-                    SELECT T0.*, T1.nombre_us, T1.email_us, T1.genero_us, T1.telefono_us, T1.estado_us, T1.admin_us, T1.avatar_us
+                    SELECT T0.*, T1.nombre_us, T1.email_us, T1.genero_us, T1.telefono_us, T1.estado_us, T1.admin_us, T1.avatar_us, T1.usuario_admin
                     FROM finanzas AS T0 INNER JOIN usuarios AS T1 ON T0.id_us = T1.id_us
                     WHERE T0.id_us = ${escapeIdUs}`;
       MySQL.ejecutarQuery( query, (err:any, finanzas: Object[]) =>{

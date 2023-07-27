@@ -15,7 +15,6 @@ export default class Usuarios {
 
   //Método para insertar usuarios
   public static insertUsuarios = async(req: Request, res: Response) =>{
-
     await routValida.validarUsuario(req.body.email, (err:any, data:any ) =>{
       if(data){
         return res.status(400).send({ 
@@ -23,18 +22,15 @@ export default class Usuarios {
           msg: 'El usuario con este correo electrónico ya está registrado'
         }); 
       }
-
       if ( err ) {
         if ( err == 'No hay registros.' ) {
-          
           //Encriptar contraseña
           const salt = bcrypt.genSaltSync();
           const password = bcrypt.hashSync( req.body.password, salt );
-          
           const query = `
-          INSERT INTO usuarios 
-          (nombre_us, email_us, password_us, telefono_us, direccion_us, estado_us, genero_us, admin_us, fechareg_us )
-          VALUES ( '${req.body.nombre}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.direccion}', 1, '${req.body.genero}', 'N', CURRENT_TIMESTAMP() )`;
+            INSERT INTO usuarios 
+            (nombre_us, email_us, password_us, telefono_us, direccion_us, estado_us, genero_us, admin_us, fechareg_us, usuario_admin, permiso_acceso )
+            VALUES ( '${req.body.nombre}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.direccion}', 1, '${req.body.genero}', 'N', CURRENT_TIMESTAMP(), ${req.body.useadmin}, 'N' )`;
           
           MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
             if ( err ) {
@@ -43,17 +39,58 @@ export default class Usuarios {
                 error: err,
                 query 
               });
-              
             } 
-  
             res.status(200).send({
               ok: true,
               msg: 'Usuario registrado con éxito.',
               result
             })
-  
           });
-  
+        } else {
+          return res.status(400).send({
+            ok: false,
+            msg: 'Problema al crear el usuario.',
+            err
+          })
+        }
+      }
+    })
+
+  }
+
+
+  public static registerUsuario = async(req: Request, res: Response) =>{    
+    await routValida.validarUsuario(req.body.email, (err:any, data:any ) =>{
+      if(data){
+        return res.status(400).send({ 
+          ok: false, 
+          msg: 'El usuario con este correo electrónico ya está registrado'
+        }); 
+      }
+      if ( err ) {
+        if ( err == 'No hay registros.' ) {
+          //Encriptar contraseña
+          const salt = bcrypt.genSaltSync();
+          const password = bcrypt.hashSync( req.body.password, salt );
+          const query = `
+            INSERT INTO usuarios 
+            (nombre_us, email_us, password_us, telefono_us, direccion_us, estado_us, genero_us, admin_us, fechareg_us, usuario_admin, permiso_acceso )
+            VALUES ( '${req.body.nombre}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.direccion}', 1, '${req.body.genero}', 'N', CURRENT_TIMESTAMP(), 1, 'N' )`;
+          
+          MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
+            if ( err ) {
+              return res.status(400).send({
+                ok: false,
+                error: err,
+                query 
+              });
+            } 
+            res.status(200).send({
+              ok: true,
+              msg: 'Usuario registrado con éxito.',
+              result
+            })
+          });
         } else {
           return res.status(400).send({
             ok: false,
@@ -125,21 +162,31 @@ export default class Usuarios {
 
   //Método para obtener todos los clientes
   public static getAllClientes = (req: Request, res: Response) =>{
-    const query2 = `SELECT * FROM usuarios WHERE id_us NOT IN (1)`;
-    const query = `SELECT * FROM usuarios `;
-    MySQL.ejecutarQuery( query, (err:any, usuarios: Object[]) =>{
-      if ( err ) {
-        return res.status(400).send({
-          ok: false,
-          error: err
-        });
-      } else {
-        return res.status(200).send({
-          ok: true,
-          usuarios
-        })
-      }
-    })
+    try {
+      
+      const query2 = `SELECT * FROM usuarios WHERE id_us NOT IN (1)`;
+      const query = `SELECT * FROM usuarios WHERE usuario_admin = ${req.params.IdUser}`;
+
+      MySQL.ejecutarQuery(query, (err: any, usuarios: Object[]) => {
+        if (err) {
+          return res.status(400).send({
+            ok: false,
+            error: err,
+          });
+        } else {
+          return res.status(200).send({
+            ok: true,
+            usuarios,
+          });
+        }
+      });
+    } catch (error) {
+      return res.status(500).send({
+        ok: false,
+        msg: "Error inesperado en inserción... Revisar logs",
+        error,
+      });
+    }
   }
 
 

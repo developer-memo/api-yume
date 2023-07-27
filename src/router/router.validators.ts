@@ -13,21 +13,16 @@ export default class RouterValida {
 
   //Método para validar usuario
   public validarUsuario = async(email:string, callback:Function) =>{
-
     const query = `SELECT * FROM usuarios WHERE email_us = '${email}'`;
-    
+
     MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
-
       this.dataUser = result;
-
       if ( err ) {
         callback(err, null);
-  
       } else {
         callback(null, result);
       }
     })
-
   }
 
 

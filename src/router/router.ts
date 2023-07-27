@@ -15,13 +15,16 @@ import Creditos from "../Router-Creditos/creditos";
 import Pagos from "../Router-pagos/pagos";
 import Finanzas from "../Router-finanzas/finanzas";
 import Proyectos from "../Router-proyectos/proyectos";
+import MiddlewareAcceso from "../middlewares/validar-acceso";
 
 const routValida = new RouterValida();
 const jwt = new JsonWebToken();
 const middleware = new MiddlewareJWT();
 const middlewareEmail = new MiddlewareEmail();
+const middlewareAcceso = new MiddlewareAcceso();
 
 const router = Router();
+
 
 /*************************************************************************************/
 /*#region MÉTODOS POST  **************************************************************/
@@ -33,53 +36,18 @@ router.post(
   "/api/insertUsuario",
   middleware.validarJWT,
   async (req: Request, res: Response) => {
-    //Usuarios.insertUsuarios(req, res)
-
-    routValida.validarUsuario(req.body.email, (err: any, data: any) => {
-      if (data) {
-        return res.status(400).send({
-          ok: false,
-          msg: "El usuario con este correo electrónico ya está registrado",
-        });
-      }
-
-      if (err) {
-        if (err == "No hay registros.") {
-          //Encriptar contraseña
-          const salt = bcrypt.genSaltSync();
-          const password = bcrypt.hashSync(req.body.password, salt);
-
-          const query = `
-        INSERT INTO usuarios 
-        (nombre_us, email_us, password_us, telefono_us, direccion_us, estado_us, genero_us, admin_us, fechareg_us )
-        VALUES ( '${req.body.nombre}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.direccion}', 1, '${req.body.genero}', 'N', CURRENT_TIMESTAMP() )`;
-
-          MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
-            if (err) {
-              return res.status(400).send({
-                ok: false,
-                error: err,
-                query,
-              });
-            }
-
-            res.status(200).send({
-              ok: true,
-              msg: "Usuario registrado con éxito.",
-              result,
-            });
-          });
-        } else {
-          return res.status(400).send({
-            ok: false,
-            msg: "Problema al crear el usuario.",
-            err,
-          });
-        }
-      }
-    });
+    Usuarios.insertUsuarios(req, res)
   }
 );
+
+
+/**
+ * Método POST para registrar usuario
+ */
+router.post("/api/registerUsuario", (req: Request, res: Response) => {
+  Usuarios.registerUsuario(req, res);
+});
+
 
 /**
  * Método POST para insertar inversiones
@@ -95,7 +63,7 @@ router.post(
 /**
  * Método POST para iniciar sesión
  */
-router.post("/api/loginUser", (req: Request, res: Response) => {
+router.post("/api/loginUser", middlewareAcceso.validarAcceso, (req: Request, res: Response) => {
   Usuarios.loginUser(req, res);
 });
 
@@ -112,9 +80,9 @@ router.post(
       idPago = idPago.split("-");
 
       const query = `
-                  INSERT INTO pagos 
-                  ( id_pag, id_cred, id_us, valor_pag, fecha_pag, estado_pag, comentario_pag )
-                  VALUES ( '${idPago[0]}', '${req.body.idCredito}', ${req.body.idUs}, ${req.body.valor}, '${req.body.fecha}', 1, '${req.body.comentario}' ) `;
+        INSERT INTO pagos 
+        ( id_pag, id_cred, id_us, valor_pag, fecha_pag, estado_pag, comentario_pag )
+        VALUES ( '${idPago[0]}', '${req.body.idCredito}', ${req.body.idUs}, ${req.body.valor}, '${req.body.fecha}', 1, '${req.body.comentario}' ) `;
 
       MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
         if (err) {
@@ -324,34 +292,10 @@ router.get(
  *Método GET que obtiene todos los clientes
  */
 router.get(
-  "/api/usuarios",
+  "/api/usuarios/:IdUser",
   middleware.validarJWT,
   (req: Request, res: Response) => {
-    //Usuarios.getAllClientes(req, res);
-    try {
-      const query2 = `SELECT * FROM usuarios WHERE id_us NOT IN (1)`;
-      const query = `SELECT * FROM usuarios `;
-
-      MySQL.ejecutarQuery(query, (err: any, usuarios: Object[]) => {
-        if (err) {
-          return res.status(400).send({
-            ok: false,
-            error: err,
-          });
-        } else {
-          return res.status(200).send({
-            ok: true,
-            usuarios,
-          });
-        }
-      });
-    } catch (error) {
-      return res.status(500).send({
-        ok: false,
-        msg: "Error inesperado en inserción... Revisar logs",
-        error,
-      });
-    }
+    Usuarios.getAllClientes(req, res);
   }
 );
 
