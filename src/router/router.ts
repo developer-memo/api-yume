@@ -234,22 +234,36 @@ router.post(
   middleware.validarJWT,
   (req: Request, res: Response) => {
     FileUploads.uploadImages(req, res);
-  }
-);
+  });
 
 /**
  * Método POST para resetear la contraseña
  */
-router.post(
-  "/api/resetEmail",
-  middlewareEmail.validarEmail,
-  async (req: Request, res: Response) => {
+router.post( "/api/resetEmail", middlewareEmail.validarEmail, async(req: Request, res: Response) => {
     //Generar un token - JWT
     const token = await JsonWebToken.generarJWT(middlewareEmail.result);
     const nodemailer = new NodeMailer({ ...middlewareEmail.result[0], token });
     nodemailer.sendEmailPassword(res);
-  }
-);
+  });
+
+/**
+ * Método POST para enviar email al admin de nuevo user
+ */
+router.post("/api/newUserEmail", async(req: Request, res: Response) =>{
+  const nodemailer = new NodeMailer(req.body);
+  nodemailer.sendEmailNewUser(res);
+  
+})
+
+
+/**
+ * Método POST para enviar email al user de su acceso
+ */
+router.post("/api/accesoUserEmail", async(req: Request, res: Response) =>{
+  const nodemailer = new NodeMailer(req.body);
+  nodemailer.sendEmailAccesoUser(res);
+  
+})
 
 /*#endregion */
 /*************************************************************************************/
@@ -302,10 +316,7 @@ router.get(
 /**
  *Método GET que obtiene el usuario por id
  */
-router.get(
-  "/api/usuario/:id",
-  middleware.validarJWT,
-  (req: Request, res: Response) => {
+router.get("/api/usuario/:id", middleware.validarJWT, (req: Request, res: Response) => {
     Usuarios.getUsuario(req, res);
   }
 );
@@ -749,6 +760,16 @@ router.put(
 router.put("/api/updatePassword", (req: Request, res: Response) => {
   Usuarios.updatePassword(req, res);
 });
+
+
+/**
+ * Método PUT para actualizar el acceso a la plataforma
+ */
+router.put(
+  "/api/updateAcceso", middleware.validarJWT, (req: Request, res: Response) => {
+    Usuarios.updateAcceso(req, res);
+  }
+);
 
 /*#endregion */
 /*************************************************************************************/

@@ -1,18 +1,14 @@
 import { Request, Response } from 'express';
 import MySQL from '../mysql/mysql';
 
-
 export default class MiddlewareEmail {
 
   public result: any;
 
   constructor(){}
 
-
   public validarEmail = (req: Request, res: Response, next:any) =>{
-
     const query = `SELECT * FROM usuarios WHERE email_us = '${req.body.email}'`;
-
     MySQL.ejecutarQuery(query, (err:any, result:any) =>{
       if(err){
         if ( err == 'No hay registros.' ){
@@ -32,8 +28,7 @@ export default class MiddlewareEmail {
         this.result = result;
         next();
       }
-    })
-
+    });
   }
 
 

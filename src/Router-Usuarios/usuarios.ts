@@ -350,4 +350,42 @@ export default class Usuarios {
   }
 
 
+  //Método para actualizar el acceso a la plataforma
+  public static updateAcceso = (req: Request, res: Response) => {
+    try {
+      const query = `
+                  UPDATE usuarios
+                  SET permiso_acceso = '${req.body.permiso}'
+                  WHERE id_us = ${req.body.id} `;
+      MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+        if ( err ) {
+          return res.status(400).send({
+            ok: false,
+            error: err
+          });
+        } 
+        if ( result.affectedRows == 0 ) {
+          return res.status(400).send({
+            ok: false,
+            msg: 'No es posible actualizar el acceso. Verifica los datos.',
+            error: err
+          });
+        } else {
+          return res.status(200).send({
+            ok: true,
+            msg: 'Acceso actualizado con éxito.',
+            result
+          });
+        }
+      });
+    } catch (error) {
+      return res.status(500).send({
+        ok: false,
+        msg: 'Error inesperado en actualizar... Revisar logs',
+        error
+      });
+    }
+  } 
+
+
 }
