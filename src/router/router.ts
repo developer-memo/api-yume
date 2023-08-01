@@ -16,6 +16,7 @@ import Pagos from "../Router-pagos/pagos";
 import Finanzas from "../Router-finanzas/finanzas";
 import Proyectos from "../Router-proyectos/proyectos";
 import MiddlewareAcceso from "../middlewares/validar-acceso";
+import Notificaciones from "../Router-notificaciones/notificaciones";
 
 const routValida = new RouterValida();
 const jwt = new JsonWebToken();
@@ -635,6 +636,14 @@ router.get(
   }
 );
 
+
+/**
+ *Método GET que obtiene todos las notificaciones
+ */
+router.get("/api/notificaciones/:idAdmin", middleware.validarJWT, (req: Request, res: Response) => { 
+  Notificaciones.getAllNotifications(req, res);
+});
+
 /*#endregion */
 /*************************************************************************************/
 
@@ -903,6 +912,14 @@ router.delete(
     });
   }
 );
+
+
+/**
+ * Método para eliminar notificaciones por id
+ */
+router.delete("/api/deleteNotification/:id/:opt", middleware.validarJWT, (req: Request, res: Response) => {
+  Notificaciones.deleteNotifications(req, res);
+});
 
 /*#endregion */
 /*************************************************************************************/

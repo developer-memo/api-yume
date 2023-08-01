@@ -8,7 +8,7 @@ import MySQL from './mysql/mysql';
 
 
 const port:any = process.env.PORT || 3000;
-const server = Server.init( parseInt(port) );
+const server = Server.instance;
 server.app.use(bodyParser.urlencoded({ extended: false }));
 server.app.use(bodyParser.json());
 server.app.use(cors());
