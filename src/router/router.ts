@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import cron = require("node-cron");
-import bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
 
 import NodeMailer from "../nodemailer/config-nodemailer";
@@ -939,5 +938,6 @@ cron.schedule("*/3 * * * *", () => {
     }
   });
 });
+
 
 export default router;

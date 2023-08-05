@@ -3,6 +3,7 @@ import express  from 'express';
 import socketIO from 'socket.io';
 import  http  from "http";
 import * as socket from '../sockets/socket';
+import cron = require("node-cron");
 
 
 export default class Server {
@@ -35,14 +36,18 @@ export default class Server {
     this.io.on('connection', client =>{
       console.log('**Cliente conectado**');
       
+      //Notificación nuevo cliente 
       socket.notifications(client, this.io);
 
-      socket.disconnect(client);
-      
-    })
-    
-  }
+      //Notificación recordatorio pagos 
+      const hoy = new Date().getDate(); 
+      cron.schedule(`*/59 * ${hoy} * *`, () => {
+        socket.reminderNotification(hoy, this.io);
+      });
 
+      socket.disconnect(client);
+    })
+  }
 
   static init(puerto:Number){
     return new Server( puerto );
